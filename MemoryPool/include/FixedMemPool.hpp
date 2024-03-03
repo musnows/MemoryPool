@@ -12,7 +12,7 @@ public:
 	T* New()
 	{
 		T* obj = nullptr;
-		std::unique_lock lockGuard(_mtx);
+		std::unique_lock<std::mutex> lockGuard(_mtx);
 		// 优先把还回来内存块对象，再次重复利用
 		if (_freeList)
 		{
@@ -48,7 +48,7 @@ public:
 	{
 		// 显示调用析构函数
 		obj->~T();
-		std::unique_lock lockGuard(_mtx);
+		std::unique_lock<std::mutex> lockGuard(_mtx);
 		// 头插，使用void**强转能保证转换后的空间一定是个指针的大小
 		(*reinterpret_cast<void**>(obj)) = _freeList; // 指向原本的freelist开头的地址
 		_freeList = obj; // 更新头节点
