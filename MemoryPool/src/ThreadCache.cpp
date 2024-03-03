@@ -1,5 +1,5 @@
-#include "ThreadCache.h"
-#include "CentralCache.h"
+#include "../include/ThreadCache.h"
+#include "../include/CentralCache.h"
 
 #ifdef __linux__
 #include <algorithm>

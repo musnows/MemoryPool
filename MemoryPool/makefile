@@ -1,4 +1,4 @@
-test.out:test.cpp ThreadCache.cpp PageCache.cpp CentralCache.cpp
+test.out:test.cpp src/ThreadCache.cpp src/PageCache.cpp src/CentralCache.cpp
 	g++ -o $@ $^ -lpthread
 
 .PHONY:cl
