@@ -1,6 +1,5 @@
 #pragma once
-#include <cassert>
-#include "utils.hpp"
+#include "Utils.hpp"
 
 namespace mempool {
 

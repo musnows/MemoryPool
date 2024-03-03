@@ -3,3 +3,6 @@
 *.vcxproj*
 *.sln
 Debug/
+
+# linux
+test.out

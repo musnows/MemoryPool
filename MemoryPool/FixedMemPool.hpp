@@ -12,7 +12,7 @@ public:
 	T* New()
 	{
 		T* obj = nullptr;
-
+		std::unique_lock lockGuard(_mtx);
 		// 优先把还回来内存块对象，再次重复利用
 		if (_freeList)
 		{
@@ -30,7 +30,8 @@ public:
 			}
 
 			obj = reinterpret_cast<T*>(_memory);
-			assert(obj != nullptr);
+			assert(obj != nullptr); // FIXME: 有的时候运行程序，obj内存为空
+			// 解决办法是加锁，因为初始化ThreadCache的时候会出现多线程访问问题
 
 			size_t objSize = sizeof(T) < sizeof(void*) ? sizeof(void*) : sizeof(T);
 			_memory += objSize; // 加上对象大小后，会跳转到下一个内存块的位置
@@ -47,7 +48,7 @@ public:
 	{
 		// 显示调用析构函数
 		obj->~T();
-
+		std::unique_lock lockGuard(_mtx);
 		// 头插，使用void**强转能保证转换后的空间一定是个指针的大小
 		(*reinterpret_cast<void**>(obj)) = _freeList; // 指向原本的freelist开头的地址
 		_freeList = obj; // 更新头节点
@@ -58,5 +59,6 @@ private:
 	size_t _remainBytes = 0; // 大块内存在切分过程中剩余字节数
 
 	void* _freeList = nullptr; // 还回来过程中链接的自由链表的头指针
+	std::mutex _mtx; // 需要加锁
 };
 }

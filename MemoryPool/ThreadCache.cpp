@@ -1,6 +1,10 @@
 #include "ThreadCache.h"
 #include "CentralCache.h"
 
+#ifdef __linux__
+#include <algorithm>
+#endif
+
 namespace mempool
 {
 	void* ThreadCache::Allocate(size_t bytes)
@@ -39,7 +43,11 @@ namespace mempool
 	void* ThreadCache::FetchFromCentralCache(size_t index, size_t bytes)
 	{
 		// 注意，std和windows.h中都有一个min宏
-		size_t batchNum = min(_freeList[index].GetMaxSize(), SizeClass::NumMoveSize(bytes));
+		#ifdef _WIN32
+			size_t batchNum = min(_freeList[index].GetMaxSize(), SizeClass::NumMoveSize(bytes));
+		#elif __linux__
+			size_t batchNum = std::min(_freeList[index].GetMaxSize(), SizeClass::NumMoveSize(bytes));
+		#endif
 		if (_freeList[index].GetMaxSize() == batchNum)
 		{
 			_freeList[index].IncreaseMaxSize(1); // 每申请一次，就将下次申请的阈值加一
