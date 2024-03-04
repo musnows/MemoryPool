@@ -176,8 +176,22 @@ void TestMultiThread()
 	t2.join();
 }
 
+// 测试大于256KB和大于PageCache管理范围的内存申请和释放
+void TestBigAlloc()
+{
+	void* ptr =  ConcurrentAlloc(300*1024);
+	cout << "300KB: " << ptr << "\n";
+	ConcurrentFree(ptr);
+
+	ptr = ConcurrentAlloc(2000*1024);
+	cout << "2000KB: " << ptr << "\n";
+	ConcurrentFree(ptr);
+}
+
+
 int main()
 {
-	TestMultiThread();
+	//TestMultiThread();
+	TestBigAlloc();
 	return 0;
 }

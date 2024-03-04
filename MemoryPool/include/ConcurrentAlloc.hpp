@@ -14,7 +14,7 @@ namespace mempool
 
 			PageCache::GetInstance()->Lock();
 			Span* span = PageCache::GetInstance()->NewSpan(kpage);
-			span->_objSize = size;
+			span->_objSize = size; // 对于大块内存而言是没有拆分的，这里必须要设置一下大小
 			PageCache::GetInstance()->Unlock();
 
 			void* ptr = (void*)(span->_pageId << PAGE_SHIFT);

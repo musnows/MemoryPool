@@ -8,6 +8,7 @@
 #include <mutex>
 #include <atomic>
 #include <unordered_map>
+#include <iostream>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -36,7 +37,7 @@ namespace mempool
 #elif __linux__
 		// linux下brk或者mmap
 		void *ptr = mmap(NULL, bytes, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		allocPtrToBytes.emplace(ptr, bytes);
+		allocPtrToBytes[ptr] = bytes;
 #else
 		void *ptr = nullptr; // 不支持的操作系统
 #endif
@@ -44,7 +45,7 @@ namespace mempool
 		{
 			throw std::bad_alloc();
 		}
-
+		// std::cout << "alloc ptr: "<< ptr << " - " << bytes << "\n";
 		return ptr;
 	}
 
@@ -55,12 +56,17 @@ namespace mempool
 		VirtualFree(ptr, 0, MEM_RELEASE);
 #elif __linux__
 		// linux
-		auto ret = allocPtrToBytes.find(ptr);
+ 		auto ret = allocPtrToBytes.find(ptr);
 		// 被释放的内存一定是以申请时的指针为起始地址的
-		assert(ret == allocPtrToBytes.end()); // 没有找到，说明代表有问题
-		// 被释放的长度
-		unsigned long long bytes = ret->second;
-		munmap(ptr, bytes);
+		if(ret != allocPtrToBytes.end()) 
+		{	// 被释放的长度
+			unsigned long long bytes = ret->second;
+			munmap(ptr, bytes);
+		}
+		else
+		{
+			assert(false); // 没有找到，说明有问题
+		}
 #endif
 	}
 

@@ -116,10 +116,12 @@ namespace mempool
 		// 超过管理范围，直接申请并设置span
 		if (k >= NUM_PAGES)
 		{
-			void* ptr = SystemAlloc(k << PAGE_SHIFT);
+			void* ptr = SystemAlloc(k); // 这里直接传入K就可以了
 			Span* span = _spanPool.New();
 			span->_n = k;
 			span->_pageId = reinterpret_cast<PageID>(ptr) >> PAGE_SHIFT;
+			// 这里必须要设置，否则释放内存时无法确认是否大于256KB
+			_idSpanMap[span->_pageId] = span; 
 			return span;
 		}
 
